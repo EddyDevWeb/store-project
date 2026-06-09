@@ -7,6 +7,10 @@ const connectDB = require("./config/db");
 
 const app = express();
 
+const dns = require("dns");
+
+dns.setDefaultResultOrder("ipv4first");
+
 connectDB();
 
 app.use(cors());
