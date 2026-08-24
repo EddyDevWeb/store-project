@@ -11,6 +11,8 @@ import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
 import OrderDetails from "./pages/OrderDetails";
@@ -45,6 +47,14 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/olvide-contrasena"
+            element={<ForgotPassword />}
+          />
+          <Route
+            path="/resetear-contrasena/:token"
+            element={<ResetPassword />}
+          />
           <Route
             path="/profile"
             element={

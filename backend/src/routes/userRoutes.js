@@ -19,6 +19,8 @@ const {
   googleLogin,
   getFavorites,
   toggleFavorite,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/userController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -28,6 +30,8 @@ router.get("/profile", protect, (req, res) => {
 
 router.get("/favorites", protect, getFavorites);
 router.post("/favorites/:productId", protect, toggleFavorite);
+router.post("/forgot-password", authLimiter, forgotPassword);
+router.post("/reset-password/:token", authLimiter, resetPassword);
 
 router.post("/register", authLimiter, registerUser);
 router.post("/login", authLimiter, loginUser);

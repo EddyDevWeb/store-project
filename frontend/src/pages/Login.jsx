@@ -124,6 +124,15 @@ function Login() {
             )}
           </div>
 
+          <div className="flex justify-end">
+            <Link
+              to="/olvide-contrasena"
+              className="text-xs font-semibold text-brand-500 transition-colors hover:text-brand-800"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+
           <button type="submit" disabled={submitting} className="btn-primary w-full !py-3.5">
             {submitting ? (
               <>
