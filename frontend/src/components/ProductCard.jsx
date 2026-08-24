@@ -1,60 +1,77 @@
 import { Link } from "react-router-dom";
 
-function ProductCard({ product }) {
-  return (
-    <div className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+const FALLBACK_IMAGE =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="#eef2f7"/><g fill="none" stroke="#94a3b8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><rect x="140" y="100" width="120" height="80" rx="8"/><path d="M120 200h160"/></g></svg>`
+  );
 
-      <div className="overflow-hidden">
+function ProductCard({ product }) {
+  const outOfStock = product.stock <= 0;
+
+  const handleImageError = (event) => {
+    if (!event.currentTarget.dataset.fallback) {
+      event.currentTarget.dataset.fallback = "true";
+      event.currentTarget.src = FALLBACK_IMAGE;
+    }
+  };
+
+  return (
+    <article className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+      <Link to={`/products/${product._id}`} className="relative block overflow-hidden bg-brand-50">
         <img
           src={product.image}
           alt={product.title}
-          className="w-full h-60 object-cover group-hover:scale-110 transition duration-500"
+          loading="lazy"
+          onError={handleImageError}
+          className="h-60 w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
-      </div>
 
-      <div className="p-5">
+        {outOfStock && (
+          <span className="absolute left-4 top-4 rounded-full bg-brand-900/85 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+            Agotado
+          </span>
+        )}
+      </Link>
 
-        <span className="inline-block bg-blue-100 text-[#4A6FA5] text-sm px-3 py-1 rounded-full mb-3">
+      <div className="flex flex-1 flex-col p-5">
+        <span className="mb-2 inline-block w-fit rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-500">
           {product.category}
         </span>
 
-        <h3 className="text-xl font-bold text-[#2D3748] line-clamp-2">
-          {product.title}
-        </h3>
+        <Link to={`/products/${product._id}`}>
+          <h3 className="line-clamp-2 font-semibold leading-snug text-brand-900 transition-colors group-hover:text-brand-600">
+            {product.title}
+          </h3>
+        </Link>
 
-        <p className="text-gray-500 mt-2 line-clamp-2">
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-brand-400">
           {product.description}
         </p>
 
-        <div className="flex items-center justify-between mt-5">
-
-          <span className="text-2xl font-bold text-[#D4A373]">
-            ${product.price}
+        <div className="mt-auto flex items-center justify-between pt-5">
+          <span className="text-xl font-bold text-accent-500">
+            ${Number(product.price).toFixed(2)}
           </span>
 
-          <span
-            className={`text-sm px-3 py-1 rounded-full ${
-              product.stock > 0
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {product.stock > 0
-              ? `${product.stock} disponibles`
-              : "Agotado"}
-          </span>
-
+          {!outOfStock && product.stock <= 5 && (
+            <span className="text-xs font-medium text-brand-400">
+              ¡Solo {product.stock}!
+            </span>
+          )}
         </div>
 
-        <Link
-          to={`/products/${product._id}`}
-          className="mt-5 block text-center bg-[#4A6FA5] text-white py-3 rounded-xl hover:bg-[#3D5F91] transition"
-        >
-          Ver Detalles
-        </Link>
-
+        {outOfStock ? (
+          <button disabled className="btn-primary mt-4 w-full opacity-40">
+            Sin stock
+          </button>
+        ) : (
+          <Link to={`/products/${product._id}`} className="btn-primary mt-4 w-full">
+            Ver detalles
+          </Link>
+        )}
       </div>
-    </div>
+    </article>
   );
 }
 

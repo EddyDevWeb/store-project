@@ -1,52 +1,86 @@
+import { Link } from "react-router-dom";
+
+const shopLinks = [
+  { to: "/", label: "Inicio" },
+  { to: "/products", label: "Productos" },
+  { to: "/cart", label: "Carrito" },
+  { to: "/profile", label: "Mi cuenta" },
+];
+
+const accountLinks = [
+  { to: "/login", label: "Iniciar sesión" },
+  { to: "/register", label: "Crear cuenta" },
+];
+
 function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-[#2D3748] text-white mt-20">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <footer className="mt-20 bg-brand-950 text-brand-300">
+      <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="grid gap-10 md:grid-cols-4">
+          <div className="md:col-span-2">
+            <Link to="/" className="text-2xl font-extrabold tracking-tight text-white">
+              Tech<span className="font-light text-brand-400">Store</span>
+            </Link>
 
-        <div className="grid md:grid-cols-3 gap-10">
-
-          <div>
-            <h2 className="text-3xl font-bold">
-              TechStore
-            </h2>
-
-            <p className="text-gray-300 mt-4">
-              Componentes, periféricos y accesorios
-              seleccionados para ofrecer calidad,
-              rendimiento y confiabilidad.
+            <p className="mt-4 max-w-sm text-sm leading-relaxed">
+              Componentes, periféricos y accesorios seleccionados para
+              ofrecer calidad, rendimiento y confiabilidad.
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">
-              Navegación
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+              Tienda
             </h3>
 
-            <ul className="space-y-2 text-gray-300">
-              <li>Inicio</li>
-              <li>Productos</li>
-              <li>Login</li>
+            <ul className="space-y-2.5 text-sm">
+              {shopLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">
-              Información
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+              Cuenta
             </h3>
 
-            <ul className="space-y-2 text-gray-300">
-              <li>Soporte</li>
-              <li>Contacto</li>
-              <li>Política de Privacidad</li>
+            <ul className="space-y-2.5 text-sm">
+              {accountLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <a
+                  href="mailto:soporte@techstore.com"
+                  className="transition-colors hover:text-white"
+                >
+                  Soporte
+                </a>
+              </li>
             </ul>
           </div>
-
         </div>
 
-        <div className="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400">
-          © 2026 TechStore. Todos los derechos reservados.
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-brand-800 pt-6 text-xs sm:flex-row">
+          <p>© {year} TechStore. Todos los derechos reservados.</p>
+          <p>Hecho con tecnología premium.</p>
         </div>
-
       </div>
     </footer>
   );

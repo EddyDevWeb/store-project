@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { OAuth2Client } = require("google-auth-library");
 
 const generateToken = (id) => {
   return jwt.sign(
@@ -13,11 +15,19 @@ const generateToken = (id) => {
   );
 };
 
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = String(email ?? "").trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (
       user &&
@@ -48,7 +58,18 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const userExists = await User.findOne({ email });
+    const normalizedEmail = String(email ?? "").trim().toLowerCase();
+
+    if (!password || String(password).length < 6) {
+      return res.status(400).json({
+        message:
+          "La contraseña es obligatoria y debe tener al menos 6 caracteres",
+      });
+    }
+
+    const userExists = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (userExists) {
       return res.status(400).json({
@@ -62,7 +83,7 @@ const registerUser = async (req, res) => {
 
     const user = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
@@ -74,7 +95,71 @@ const registerUser = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        message: "Falta la credencial de Google",
+      });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload.email || !payload.email_verified) {
+      return res.status(401).json({
+        message:
+          "El email de tu cuenta de Google no está verificado",
+      });
+    }
+
+    const email = payload.email.toLowerCase();
+    const name = payload.name ?? email.split("@")[0];
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const salt = await bcrypt.genSalt(10);
+
+      const unusablePassword = await bcrypt.hash(
+        crypto.randomBytes(32).toString("hex"),
+        salt
+      );
+
+      user = await User.create({
+        name,
+        email,
+        password: unusablePassword,
+        googleId: payload.sub,
+      });
+    } else if (!user.googleId) {
+      user.googleId = payload.sub;
+      await user.save();
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    console.error("Google login error:", error.message);
+    res.status(401).json({
+      message: "No se pudo verificar tu sesión de Google",
+    });
+  }
+};
+
 module.exports = {
   registerUser,
-    loginUser,
+  loginUser,
+  googleLogin,
 };
