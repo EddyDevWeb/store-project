@@ -8,6 +8,7 @@ const {
   getMyOrders,
   getOrderById,
   hasPurchased,
+  getSalesStats,
   updateOrderStatus,
 } = require("../controllers/orderController");
 
@@ -19,6 +20,8 @@ const {
 router.post("/", protect, createOrder);
 
 router.get("/myorders", protect, getMyOrders);
+
+router.get("/stats", protect, admin, getSalesStats);
 
 router.get("/has-purchased/:productId", protect, hasPurchased);
 

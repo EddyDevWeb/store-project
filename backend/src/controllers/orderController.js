@@ -224,11 +224,90 @@ const hasPurchased = async (req, res) => {
   }
 };
 
+const getSalesStats = async (req, res) => {
+  try {
+    const now = new Date();
+
+    const since = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() - 29
+      )
+    );
+
+    const daily = await Order.aggregate([
+      {
+        $match: { createdAt: { $gte: since } },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+            },
+          },
+          revenue: { $sum: "$totalPrice" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+
+    const byDate = new Map(
+      daily.map((day) => [day._id, day])
+    );
+
+    const series = [];
+
+    for (let i = 0; i < 30; i++) {
+      const day = new Date(since);
+      day.setUTCDate(day.getUTCDate() + i);
+
+      const key = day.toISOString().slice(0, 10);
+      const found = byDate.get(key);
+
+      series.push({
+        date: key,
+        revenue: found?.revenue ?? 0,
+        count: found?.count ?? 0,
+      });
+    }
+
+    const [totals] = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: "$totalPrice" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.json({
+      daily: series,
+      totals: {
+        revenue:
+          Math.round((totals?.revenue ?? 0) * 100) / 100,
+        count: totals?.count ?? 0,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrders,
   getMyOrders,
   getOrderById,
   hasPurchased,
+  getSalesStats,
   updateOrderStatus,
 };
