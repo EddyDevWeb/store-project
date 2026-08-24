@@ -201,10 +201,34 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+const hasPurchased = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        message: "ID de producto inválido",
+      });
+    }
+
+    const purchased = await Order.exists({
+      user: req.user._id,
+      "orderItems.product": productId,
+    });
+
+    res.json({ purchased: Boolean(purchased) });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrders,
   getMyOrders,
   getOrderById,
+  hasPurchased,
   updateOrderStatus,
 };

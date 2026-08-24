@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { AuthContext } from "../context/authContext";
 import { FavoritesContext } from "../context/favoritesContext";
+import Stars from "./Stars";
 
 const FALLBACK_IMAGE =
   "data:image/svg+xml;utf8," +
@@ -104,6 +105,13 @@ function ProductCard({ product }) {
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-brand-400">
           {product.description}
         </p>
+
+        {product.ratingCount > 0 && (
+          <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-brand-500">
+            <Stars value={product.ratingAvg} size={13} />
+            {product.ratingAvg.toFixed(1)} ({product.ratingCount})
+          </p>
+        )}
 
         <div className="mt-auto flex items-center justify-between pt-5">
           <span className="text-xl font-bold text-accent-500">

@@ -7,6 +7,7 @@ const {
   getOrders,
   getMyOrders,
   getOrderById,
+  hasPurchased,
   updateOrderStatus,
 } = require("../controllers/orderController");
 
@@ -16,6 +17,10 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.post("/", protect, createOrder);
+
+router.get("/myorders", protect, getMyOrders);
+
+router.get("/has-purchased/:productId", protect, hasPurchased);
 
 router.get("/myorders", protect, getMyOrders);
 
