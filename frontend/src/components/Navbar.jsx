@@ -2,7 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import { CartContext } from "../context/cartContext";
-import { LayoutDashboard, LogOut, Menu, ShoppingCart, User, X } from "lucide-react";
+import { FavoritesContext } from "../context/favoritesContext";
+import { Heart, LayoutDashboard, LogOut, Menu, ShoppingCart, User, X } from "lucide-react";
 
 const navLinks = [
   { to: "/", label: "Inicio" },
@@ -12,6 +13,7 @@ const navLinks = [
 function Navbar() {
   const { userInfo, logout } = useContext(AuthContext);
   const { cartItems } = useContext(CartContext);
+  const { favoriteIds } = useContext(FavoritesContext);
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -66,6 +68,27 @@ function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {userInfo && (
+              <Link
+                to="/favoritos"
+                aria-label={`Favoritos, ${favoriteIds.length} ${
+                  favoriteIds.length === 1 ? "producto" : "productos"
+                }`}
+                className="relative rounded-xl p-2.5 text-brand-600 transition-colors hover:bg-brand-50 hover:text-red-500"
+              >
+                <Heart size={21} strokeWidth={1.8} />
+
+                {favoriteIds.length > 0 && (
+                  <span
+                    key={favoriteIds.length}
+                    className="absolute -right-1 -top-1 flex h-5 min-w-5 animate-badge-pop items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white"
+                  >
+                    {favoriteIds.length}
+                  </span>
+                )}
+              </Link>
+            )}
+
             <Link
               to="/cart"
               aria-label={`Carrito, ${count} ${count === 1 ? "producto" : "productos"}`}
@@ -186,6 +209,22 @@ function Navbar() {
                   }
                 >
                   <LayoutDashboard size={18} /> Panel Admin
+                </NavLink>
+              )}
+
+              {userInfo && (
+                <NavLink
+                  to="/favoritos"
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-brand-50 text-brand-900"
+                        : "text-brand-500 hover:bg-brand-50 hover:text-brand-900"
+                    }`
+                  }
+                >
+                  <Heart size={18} /> Mis favoritos
                 </NavLink>
               )}
 

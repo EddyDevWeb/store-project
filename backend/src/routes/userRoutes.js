@@ -17,12 +17,17 @@ const {
   registerUser,
   loginUser,
   googleLogin,
+  getFavorites,
+  toggleFavorite,
 } = require("../controllers/userController");
 const { protect } = require("../middleware/authMiddleware");
 
 router.get("/profile", protect, (req, res) => {
   res.json(req.user);
 });
+
+router.get("/favorites", protect, getFavorites);
+router.post("/favorites/:productId", protect, toggleFavorite);
 
 router.post("/register", authLimiter, registerUser);
 router.post("/login", authLimiter, loginUser);

@@ -1,4 +1,9 @@
-import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Heart } from "lucide-react";
+import toast from "react-hot-toast";
+import { AuthContext } from "../context/authContext";
+import { FavoritesContext } from "../context/favoritesContext";
 
 const FALLBACK_IMAGE =
   "data:image/svg+xml;utf8," +
@@ -7,7 +12,33 @@ const FALLBACK_IMAGE =
   );
 
 function ProductCard({ product }) {
+  const { userInfo } = useContext(AuthContext);
+  const { favoriteIds, toggleFavorite } = useContext(FavoritesContext);
+  const navigate = useNavigate();
+
   const outOfStock = product.stock <= 0;
+  const isFavorite = favoriteIds.includes(product._id);
+
+  const handleToggleFavorite = async () => {
+    if (!userInfo) {
+      toast.error("Inicia sesión para guardar favoritos");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const nowFavorite = await toggleFavorite(product._id);
+
+      toast.success(
+        nowFavorite
+          ? "Añadido a favoritos ❤️"
+          : "Eliminado de favoritos"
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("No se pudo actualizar tus favoritos");
+    }
+  };
 
   const handleImageError = (event) => {
     if (!event.currentTarget.dataset.fallback) {
@@ -17,7 +48,7 @@ function ProductCard({ product }) {
   };
 
   return (
-    <article className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+    <article className="card group relative flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
       <Link to={`/products/${product._id}`} className="relative block overflow-hidden bg-brand-50">
         <img
           src={product.image}
@@ -39,6 +70,25 @@ function ProductCard({ product }) {
           </span>
         )}
       </Link>
+
+      <button
+        type="button"
+        onClick={handleToggleFavorite}
+        aria-label={
+          isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"
+        }
+        aria-pressed={isFavorite}
+        className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-90"
+      >
+        <Heart
+          size={17}
+          className={
+            isFavorite
+              ? "fill-red-500 text-red-500"
+              : "text-brand-600 transition-colors hover:text-red-500"
+          }
+        />
+      </button>
 
       <div className="flex flex-1 flex-col p-5">
         <span className="mb-2 inline-block w-fit rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-500">

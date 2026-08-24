@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
@@ -158,8 +159,64 @@ const googleLogin = async (req, res) => {
   }
 };
 
+const getFavorites = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("favorites");
+
+    res.json(user?.favorites ?? []);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const toggleFavorite = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        message: "ID de producto inválido",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
+    }
+
+    const index = user.favorites.findIndex(
+      (favoriteId) => favoriteId.toString() === productId
+    );
+
+    if (index >= 0) {
+      user.favorites.splice(index, 1);
+    } else {
+      user.favorites.push(productId);
+    }
+
+    await user.save();
+
+    res.json({
+      favoriteIds: user.favorites.map((favoriteId) =>
+        favoriteId.toString()
+      ),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   googleLogin,
+  getFavorites,
+  toggleFavorite,
 };
