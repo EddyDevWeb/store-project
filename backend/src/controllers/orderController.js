@@ -1,5 +1,6 @@
 const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
+const mongoose = require("mongoose");
 
 const FREE_SHIPPING_THRESHOLD = 50;
 const SHIPPING_COST = 9.99;
@@ -137,6 +138,44 @@ const getMyOrders = async (req, res) => {
     }
 };
 
+const getOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "ID inválido",
+      });
+    }
+
+    const order = await Order.findById(id).populate(
+      "orderItems.product",
+      "title image price stock"
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Orden no encontrada",
+      });
+    }
+
+    if (
+      req.user.role !== "admin" &&
+      String(order.user) !== String(req.user._id)
+    ) {
+      return res.status(403).json({
+        message: "No tienes permiso para ver esta orden",
+      });
+    }
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 const updateOrderStatus = async (req, res) => {
     try {
         const order = await Order.findById(
@@ -166,5 +205,6 @@ module.exports = {
   createOrder,
   getOrders,
   getMyOrders,
+  getOrderById,
   updateOrderStatus,
 };

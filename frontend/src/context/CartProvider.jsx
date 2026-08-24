@@ -112,6 +112,55 @@ export function CartProvider({ children }) {
         );
     };
 
+    const reorderItems = (items) => {
+        const next = [...cartItems];
+        let addedCount = 0;
+        const skipped = [];
+
+        for (const item of items) {
+            const stock = item.stock ?? 0;
+
+            if (stock <= 0) {
+                skipped.push(item.title);
+                continue;
+            }
+
+            const existing = next.find(
+                (cartItem) =>
+                    String(cartItem._id) === String(item._id)
+            );
+            const alreadyInCart = existing ? existing.qty : 0;
+            const canAdd = Math.min(
+                stock - alreadyInCart,
+                item.qty
+            );
+
+            if (canAdd <= 0) {
+                skipped.push(item.title);
+                continue;
+            }
+
+            addedCount += canAdd;
+
+            if (existing) {
+                existing.qty += canAdd;
+            } else {
+                next.push({
+                    _id: item._id,
+                    title: item.title,
+                    image: item.image,
+                    price: item.price,
+                    stock: item.stock,
+                    qty: canAdd,
+                });
+            }
+        }
+
+        setCartItems(next);
+
+        return { addedCount, skipped };
+    };
+
     const clearCart = () => {
         setCartItems([]);
     };
@@ -132,6 +181,7 @@ export function CartProvider({ children }) {
                 removeFromCart,
                 increaseQty,
                 decreaseQty,
+                reorderItems,
                 clearCart
             }}
         >

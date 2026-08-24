@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
+import OrderDetails from "./pages/OrderDetails";
 
 import DashboardHome from "./pages/admin/DashboardHome";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -57,6 +58,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Favorites />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pedidos/:id"
+            element={
+              <ProtectedRoute>
+                <OrderDetails />
               </ProtectedRoute>
             }
           />

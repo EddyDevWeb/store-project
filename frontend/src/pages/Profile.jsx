@@ -1,4 +1,6 @@
 import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { AuthContext } from "../context/authContext";
 import api from "../services/api";
 import EmptyState from "../components/EmptyState";
@@ -107,8 +109,17 @@ function Profile() {
                   ))}
                 </ul>
 
-                <p className="mt-4 font-bold text-accent-500">
-                  Total: ${Number(order.totalPrice).toFixed(2)}
+                <p className="mt-4 flex items-center justify-between gap-4">
+                  <span className="font-bold text-accent-500">
+                    Total: ${Number(order.totalPrice).toFixed(2)}
+                  </span>
+
+                  <Link
+                    to={`/pedidos/${order._id}`}
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-800"
+                  >
+                    Ver detalle <ChevronRight size={15} />
+                  </Link>
                 </p>
               </article>
             ))}
