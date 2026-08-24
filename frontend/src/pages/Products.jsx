@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { PackageSearch, Search, X } from "lucide-react";
+import { ArrowUpDown, PackageSearch, Search, X } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import EmptyState from "../components/EmptyState";
@@ -10,6 +10,7 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeCategory = searchParams.get("cat") ?? "";
@@ -42,6 +43,23 @@ function Products() {
 
     return matchesSearch && matchesCategory;
   });
+
+  const sortedProducts = useMemo(() => {
+    const list = [...filteredProducts];
+
+    switch (sortOrder) {
+      case "price_asc":
+        return list.sort((a, b) => a.price - b.price);
+      case "price_desc":
+        return list.sort((a, b) => b.price - a.price);
+      case "newest":
+        return list.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      default:
+        return list;
+    }
+  }, [filteredProducts, sortOrder]);
 
   const selectCategory = (category) => {
     if (category) {
@@ -83,11 +101,32 @@ function Products() {
             />
           </div>
 
-          <span className="shrink-0 text-sm font-medium text-brand-400">
-            {filteredProducts.length}{" "}
-            {filteredProducts.length === 1 ? "producto" : "productos"}{" "}
-            encontrados
-          </span>
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:w-auto">
+            <span className="shrink-0 text-sm font-medium text-brand-400">
+              {filteredProducts.length}{" "}
+              {filteredProducts.length === 1 ? "producto" : "productos"}{" "}
+              encontrados
+            </span>
+
+            <label className="flex items-center gap-2">
+              <ArrowUpDown
+                size={16}
+                className="pointer-events-none shrink-0 text-brand-400"
+              />
+
+              <select
+                value={sortOrder}
+                onChange={(event) => setSortOrder(event.target.value)}
+                aria-label="Ordenar productos"
+                className="input-field !w-auto !py-2"
+              >
+                <option value="">Relevancia</option>
+                <option value="price_asc">Precio: menor a mayor</option>
+                <option value="price_desc">Precio: mayor a menor</option>
+                <option value="newest">Más recientes</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         {categories.length > 0 && (
@@ -154,7 +193,7 @@ function Products() {
         />
       ) : (
         <div className="animate-scale-in grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredProducts.map((product) => (
+          {sortedProducts.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </div>

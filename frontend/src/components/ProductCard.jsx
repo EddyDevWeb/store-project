@@ -32,6 +32,12 @@ function ProductCard({ product }) {
             Agotado
           </span>
         )}
+
+        {!outOfStock && product.stock <= 5 && (
+          <span className="animate-badge-pop absolute left-4 top-4 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-sm">
+            ¡Últimas unidades!
+          </span>
+        )}
       </Link>
 
       <div className="flex flex-1 flex-col p-5">

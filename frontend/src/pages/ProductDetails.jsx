@@ -92,10 +92,16 @@ function ProductDetails() {
               className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
                 outOfStock
                   ? "bg-red-50 text-red-600"
-                  : "bg-emerald-50 text-emerald-600"
+                  : product.stock <= 5
+                    ? "bg-amber-50 text-amber-600"
+                    : "bg-emerald-50 text-emerald-600"
               }`}
             >
-              {outOfStock ? "Agotado" : `${product.stock} disponibles`}
+              {outOfStock
+                ? "Agotado"
+                : product.stock <= 5
+                  ? `¡Últimas unidades! Solo quedan ${product.stock}`
+                  : `${product.stock} disponibles`}
             </span>
 
             {!outOfStock && product.stock <= 5 && (
