@@ -56,19 +56,18 @@ function Cart() {
         qty: item.qty,
       }));
 
-      await api.post("/orders", {
-        orderItems,
-        totalPrice: total,
-      });
+      const { data } = await api.post(
+        "/payments/checkout-session",
+        { orderItems }
+      );
 
-      toast.success("¡Orden creada correctamente!");
+      toast.success("Redirigiendo a Stripe...");
 
-      clearCart();
-      navigate("/profile");
+      window.location.href = data.url;
     } catch (error) {
       console.error(error);
       toast.error(
-        error.response?.data?.message ?? "Error al crear la orden"
+        error.response?.data?.message ?? "Error al procesar la compra"
       );
     } finally {
       setCheckingOut(false);
@@ -228,17 +227,17 @@ function Cart() {
           >
             {checkingOut ? (
               <>
-                <Loader2 size={18} className="animate-spin" /> Procesando...
+                <Loader2 size={18} className="animate-spin" /> Redirigiendo...
               </>
             ) : (
               <>
-                <Lock size={16} /> Finalizar compra
+                <Lock size={16} /> Pagar con tarjeta (Stripe)
               </>
             )}
           </button>
 
           <p className="mt-3 text-center text-xs text-brand-400">
-            Compra protegida · Devolución en 30 días
+            Pago seguro con Stripe · Devolución en 30 días
           </p>
         </aside>
       </div>

@@ -42,6 +42,17 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "Pendiente",
     },
+
+    paymentStatus: {
+      type: String,
+      enum: ["Pendiente", "Pagado"],
+      default: "Pendiente",
+    },
+
+    stripeSessionId: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

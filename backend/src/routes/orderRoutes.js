@@ -3,7 +3,6 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  createOrder,
   getOrders,
   getMyOrders,
   getOrderById,
@@ -17,15 +16,11 @@ const {
   admin,
 } = require("../middleware/authMiddleware");
 
-router.post("/", protect, createOrder);
-
 router.get("/myorders", protect, getMyOrders);
 
 router.get("/stats", protect, admin, getSalesStats);
 
 router.get("/has-purchased/:productId", protect, hasPurchased);
-
-router.get("/myorders", protect, getMyOrders);
 
 router.get("/", protect, admin, getOrders);
 

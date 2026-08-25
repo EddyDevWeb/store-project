@@ -90,6 +90,18 @@ function Profile() {
                     >
                       {order.status}
                     </span>
+
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        order.paymentStatus === "Pagado"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-amber-50 text-amber-600"
+                      }`}
+                    >
+                      {order.paymentStatus === "Pagado"
+                        ? "Pagado"
+                        : "Pago pendiente"}
+                    </span>
                   </div>
 
                   <p className="text-sm text-brand-400">

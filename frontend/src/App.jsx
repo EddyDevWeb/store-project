@@ -13,6 +13,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import PagoExitoso from "./pages/PagoExitoso";
+import PagoCancelado from "./pages/PagoCancelado";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
 import OrderDetails from "./pages/OrderDetails";
@@ -54,6 +56,22 @@ function App() {
           <Route
             path="/resetear-contrasena/:token"
             element={<ResetPassword />}
+          />
+          <Route
+            path="/pago-exitoso"
+            element={
+              <ProtectedRoute>
+                <PagoExitoso />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pago-cancelado"
+            element={
+              <ProtectedRoute>
+                <PagoCancelado />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/profile"

@@ -139,13 +139,25 @@ function OrderDetails() {
           </p>
         </div>
 
-        <span
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
-            statusStyles[order.status] ?? "bg-brand-50 text-brand-500"
-          }`}
-        >
-          {order.status}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
+              statusStyles[order.status] ?? "bg-brand-50 text-brand-500"
+            }`}
+          >
+            {order.status}
+          </span>
+
+          <span
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
+              order.paymentStatus === "Pagado"
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-amber-50 text-amber-600"
+            }`}
+          >
+            {order.paymentStatus === "Pagado" ? "Pagado" : "Pago pendiente"}
+          </span>
+        </div>
       </div>
 
       {/* Timeline de estado */}

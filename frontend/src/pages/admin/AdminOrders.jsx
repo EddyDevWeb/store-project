@@ -124,6 +124,16 @@ function AdminOrders() {
                     ${Number(order.totalPrice).toFixed(2)}
                   </span>
 
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      order.paymentStatus === "Pagado"
+                        ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                        : "bg-amber-50 text-amber-600 border border-amber-200"
+                    }`}
+                  >
+                    {order.paymentStatus === "Pagado" ? "Pagado" : "Pago pendiente"}
+                  </span>
+
                   <div className="relative flex items-center gap-2">
                     {updatingId === order._id && (
                       <Loader2 size={16} className="animate-spin text-brand-400" />

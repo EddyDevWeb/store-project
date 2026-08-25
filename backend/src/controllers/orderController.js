@@ -1,112 +1,5 @@
 const Order = require("../models/orderModel");
-const Product = require("../models/productModel");
 const mongoose = require("mongoose");
-
-const FREE_SHIPPING_THRESHOLD = 50;
-const SHIPPING_COST = 9.99;
-
-const createOrder = async (req, res) => {
-  try {
-    const { orderItems } = req.body;
-
-    const isValidItems =
-      Array.isArray(orderItems) &&
-      orderItems.length > 0 &&
-      orderItems.every(
-        (item) =>
-          item.product &&
-          Number.isInteger(Number(item.qty)) &&
-          Number(item.qty) > 0
-      );
-
-    if (!isValidItems) {
-      return res.status(400).json({
-        message: "El carrito está vacío o contiene datos inválidos",
-      });
-    }
-
-    const products = await Product.find({
-      _id: { $in: orderItems.map((item) => item.product) },
-    });
-
-    const productMap = new Map(
-      products.map((product) => [String(product._id), product])
-    );
-
-    const problems = [];
-
-    for (const item of orderItems) {
-      const product = productMap.get(String(item.product));
-
-      if (!product) {
-        problems.push("un producto del carrito ya no existe");
-      } else if (product.stock < Number(item.qty)) {
-        problems.push(
-          `"${product.title}" solo tiene ${product.stock} unidad(es) disponible(s)`
-        );
-      }
-    }
-
-    if (problems.length > 0) {
-      return res.status(400).json({
-        message: `No se pudo completar la compra: ${problems.join("; ")}. Actualiza tu carrito.`,
-      });
-    }
-
-    const items = orderItems.map((item) => {
-      const product = productMap.get(String(item.product));
-
-      return {
-        product: product._id,
-        title: product.title,
-        image: product.image,
-        price: product.price,
-        qty: Number(item.qty),
-      };
-    });
-
-    const goodsTotal = items.reduce(
-      (acc, item) => acc + item.price * item.qty,
-      0
-    );
-
-    const shipping =
-      goodsTotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-
-    const totalPrice =
-      Math.round((goodsTotal + shipping) * 100) / 100;
-
-    const order = await Order.create({
-      user: req.user._id,
-      orderItems: items,
-      totalPrice,
-    });
-
-    const bulkResult = await Product.bulkWrite(
-      items.map((item) => ({
-        updateOne: {
-          filter: { _id: item.product, stock: { $gte: item.qty } },
-          update: { $inc: { stock: -item.qty } },
-        },
-      }))
-    );
-
-    if (bulkResult.modifiedCount !== items.length) {
-      await Order.findByIdAndDelete(order._id);
-
-      return res.status(409).json({
-        message:
-          "El stock cambió mientras procesábamos tu orden. Revisa tu carrito e inténtalo de nuevo.",
-      });
-    }
-
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
 
 const getOrders = async (req, res) => {
   try {
@@ -303,7 +196,6 @@ const getSalesStats = async (req, res) => {
 };
 
 module.exports = {
-  createOrder,
   getOrders,
   getMyOrders,
   getOrderById,
