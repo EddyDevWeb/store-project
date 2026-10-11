@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { OAuth2Client } = require("google-auth-library");
 const nodemailer = require("nodemailer");
-const { getTransporter } = require("../config/mailer");
+const { getTransporter, getFromAddress } = require("../config/mailer");
 
 const generateToken = (id) => {
   return jwt.sign(
@@ -250,7 +250,7 @@ const forgotPassword = async (req, res) => {
     const transporter = await getTransporter();
 
     const info = await transporter.sendMail({
-      from: '"TechStore" <no-reply@techstore.dev>',
+      from: getFromAddress(),
       to: user.email,
       subject: "Recupera tu contraseña - TechStore",
       html: `
